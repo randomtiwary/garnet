@@ -640,5 +640,44 @@ namespace Garnet.server
 
             return true;
         }
+
+        /// <summary>
+        /// CLIENT REPLY OFF|ON|SKIP
+        /// Controls whether the server sends replies to this connection.
+        /// OFF and SKIP themselves produce no reply; ON replies with +OK.
+        /// </summary>
+        private bool NetworkCLIENTREPLY()
+        {
+            if (parseState.Count != 1)
+            {
+                return AbortWithWrongNumberOfArguments("CLIENT|REPLY");
+            }
+
+            var mode = parseState.GetArgSliceByRef(0);
+
+            if (mode.Span.EqualsUpperCaseSpanIgnoringCase(CmdStrings.OFF))
+            {
+                clientReplyMode = ClientReplyMode.Off;
+                // No reply for OFF
+                return true;
+            }
+
+            if (mode.Span.EqualsUpperCaseSpanIgnoringCase(CmdStrings.ON))
+            {
+                clientReplyMode = ClientReplyMode.On;
+                while (!RespWriteUtils.TryWriteDirect(CmdStrings.RESP_OK, ref dcurr, dend))
+                    SendAndReset();
+                return true;
+            }
+
+            if (mode.Span.EqualsUpperCaseSpanIgnoringCase(CmdStrings.SKIP))
+            {
+                clientReplyMode = ClientReplyMode.Skip;
+                // No reply for SKIP
+                return true;
+            }
+
+            return AbortWithErrorMessage(CmdStrings.RESP_ERR_INVALID_CLIENT_REPLY_MODE);
+        }
     }
 }

@@ -201,6 +201,18 @@ namespace Garnet.server
         string clientName = null;
 
         /// <summary>
+        /// Client reply mode for CLIENT REPLY OFF/ON/SKIP.
+        /// </summary>
+        enum ClientReplyMode : byte
+        {
+            On = 0,
+            Off = 1,
+            Skip = 2,
+        }
+
+        ClientReplyMode clientReplyMode = ClientReplyMode.On;
+
+        /// <summary>
         /// Name of the client library.
         /// </summary>
         string clientLibName = null;
@@ -676,6 +688,9 @@ namespace Garnet.server
                                 commandErrorWritten = false;
                             }
                         }
+
+                        // Discard response for CLIENT REPLY OFF/SKIP (except CLIENT REPLY ON which always replies)
+                        MaybeSuppressClientReply(cmd);
                     }
                     else
                     {
@@ -692,6 +707,9 @@ namespace Garnet.server
 
                         // Track rejected command (ACL or script permission failure)
                         commandStats?.IncrementRejected(cmd);
+
+                        // Errors are also suppressed under CLIENT REPLY OFF/SKIP
+                        MaybeSuppressClientReply(cmd);
                     }
                 }
                 else
@@ -1054,6 +1072,7 @@ namespace Garnet.server
                 RespCommand.CLIENT_SETNAME => NetworkCLIENTSETNAME(),
                 RespCommand.CLIENT_SETINFO => NetworkCLIENTSETINFO(),
                 RespCommand.CLIENT_UNBLOCK => NetworkCLIENTUNBLOCK(),
+                RespCommand.CLIENT_REPLY => NetworkCLIENTREPLY(),
                 RespCommand.COMMAND => NetworkCOMMAND(),
                 RespCommand.COMMAND_COUNT => NetworkCOMMAND_COUNT(),
                 RespCommand.COMMAND_DOCS => NetworkCOMMAND_DOCS(),
@@ -1408,6 +1427,28 @@ namespace Garnet.server
                 dcurr = networkSender.GetResponseObjectHead();
                 dend = networkSender.GetResponseObjectTail();
             }
+        }
+
+        /// <summary>
+        /// Suppress the response buffer when CLIENT REPLY is OFF or SKIP.
+        /// CLIENT REPLY ON always sends its own +OK reply.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void MaybeSuppressClientReply(RespCommand cmd)
+        {
+            if (clientReplyMode == ClientReplyMode.On)
+                return;
+
+            // CLIENT REPLY ON always produces a reply regardless of prior mode
+            if (cmd == RespCommand.CLIENT_REPLY)
+                return;
+
+            // Discard any response written for this command
+            dcurr = networkSender.GetResponseObjectHead();
+
+            // SKIP applies to only one command, then returns to ON
+            if (clientReplyMode == ClientReplyMode.Skip)
+                clientReplyMode = ClientReplyMode.On;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

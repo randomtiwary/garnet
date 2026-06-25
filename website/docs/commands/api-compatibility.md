@@ -71,7 +71,7 @@ Note that this list is subject to change as we continue to expand our API comman
 |  | NO-EVICT | ➖ |  |
 |  | NO-TOUCH | ➖ |  |
 |  | PAUSE | ➖ |  |
-|  | REPLY | ➖ |  |
+|  | [REPLY](client.md#client-reply) | ➕ |  |
 |  | [SETINFO](client.md#client-setinfo) | ➕ |  |
 |  | [SETNAME](client.md#client-setname) | ➕ |  |
 |  | TRACKING | ➖ |  |

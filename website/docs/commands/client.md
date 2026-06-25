@@ -145,6 +145,37 @@ Bulk string reply: information and statistics about client connections.
 
 ---
 
+### CLIENT REPLY
+
+#### Syntax
+
+```bash
+    CLIENT REPLY <ON | OFF | SKIP>
+```
+
+This command controls whether the server will reply to commands on this connection.
+
+* `CLIENT REPLY OFF` — the server will not reply to commands until `CLIENT REPLY ON` is issued. The `OFF` command itself does not produce a reply.
+* `CLIENT REPLY ON` — the server resumes normal replies. This command replies with `OK`.
+* `CLIENT REPLY SKIP` — the server skips the reply for the next command only, then resumes normal replies. The `SKIP` command itself does not produce a reply.
+
+Useful for fire-and-forget pipelining and mass insertion scenarios (e.g. `redis-cli --pipe`).
+
+#### Complexity
+
+O(1)
+
+#### ACL Categories
+
+@connection, @slow
+
+#### Resp Reply
+
+* `ON`: Simple string reply: `OK`.
+* `OFF` / `SKIP`: No reply.
+
+---
+
 ### CLIENT UNBLOCK
 
 #### Syntax

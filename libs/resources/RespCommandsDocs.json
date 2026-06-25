@@ -1181,6 +1181,43 @@
         ]
       },
       {
+        "Command": "CLIENT_REPLY",
+        "Name": "CLIENT|REPLY",
+        "Summary": "Instructs the server whether to reply to commands.",
+        "Group": "Connection",
+        "Complexity": "O(1)",
+        "Arguments": [
+          {
+            "TypeDiscriminator": "RespCommandContainerArgument",
+            "Name": "REPLY-MODE",
+            "Type": "OneOf",
+            "Arguments": [
+              {
+                "TypeDiscriminator": "RespCommandBasicArgument",
+                "Name": "ON",
+                "DisplayText": "on",
+                "Type": "PureToken",
+                "Token": "ON"
+              },
+              {
+                "TypeDiscriminator": "RespCommandBasicArgument",
+                "Name": "OFF",
+                "DisplayText": "off",
+                "Type": "PureToken",
+                "Token": "OFF"
+              },
+              {
+                "TypeDiscriminator": "RespCommandBasicArgument",
+                "Name": "SKIP",
+                "DisplayText": "skip",
+                "Type": "PureToken",
+                "Token": "SKIP"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "Command": "CLIENT_UNBLOCK",
         "Name": "CLIENT|UNBLOCK",
         "Summary": "Unblocks a client blocked by a blocking command from a different connection.",

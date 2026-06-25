@@ -110,6 +110,9 @@ namespace Garnet.server
         public static ReadOnlySpan<byte> on => "on"u8;
         public static ReadOnlySpan<byte> OFF => "OFF"u8;
         public static ReadOnlySpan<byte> off => "off"u8;
+        public static ReadOnlySpan<byte> REPLY => "REPLY"u8;
+        public static ReadOnlySpan<byte> SKIP => "SKIP"u8;
+        public static ReadOnlySpan<byte> RESP_ERR_INVALID_CLIENT_REPLY_MODE => "ERR CLIENT REPLY mode must be ON, OFF or SKIP"u8;
         public static ReadOnlySpan<byte> BARRIER => "BARRIER"u8;
         public static ReadOnlySpan<byte> barrier => "barrier"u8;
         public static ReadOnlySpan<byte> MODULE => "MODULE"u8;
