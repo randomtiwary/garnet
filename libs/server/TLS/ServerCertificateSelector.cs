@@ -33,6 +33,11 @@ namespace Garnet.server.TLS
         /// </summary>
         readonly string sslCertificatePassword;
 
+        /// <summary>
+        /// Optional PEM private key file (when key is not embedded in the certificate file).
+        /// </summary>
+        readonly string sslCertificateKeyFileName;
+
         readonly Timer _refreshTimer;
         readonly ILogger _logger;
 
@@ -67,12 +72,13 @@ namespace Garnet.server.TLS
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerCertificateSelector"/> class.
-        /// </summary>changed th
-        public ServerCertificateSelector(string fileName, string filePassword, int certRefreshFrequencyInSeconds = 0, ILogger logger = null)
+        /// </summary>
+        public ServerCertificateSelector(string fileName, string filePassword, int certRefreshFrequencyInSeconds = 0, ILogger logger = null, string keyFileName = null)
         {
             this._logger = logger;
             this.sslCertificateFileName = fileName;
             this.sslCertificatePassword = filePassword;
+            this.sslCertificateKeyFileName = keyFileName;
 
             // First get certificate synchronously on current call
             this.certRefreshFrequency = TimeSpan.Zero;
@@ -116,7 +122,7 @@ namespace Garnet.server.TLS
                 {
                     this.sslServerCertificate =
                         CertificateUtils.GetMachineCertificateByFile(
-                            this.sslCertificateFileName, this.sslCertificatePassword);
+                            this.sslCertificateFileName, this.sslCertificatePassword, this.sslCertificateKeyFileName);
                 }
             }
             catch (Exception ex)
@@ -136,7 +142,7 @@ namespace Garnet.server.TLS
                 else
                 {
                     // This is not a background timer based call
-                    this._logger?.LogError(ex, "Unable to fetch certificate using the provided filename and password. Make sure you specify a correct CertFileName and CertPassword.");
+                    this._logger?.LogError(ex, "Unable to fetch certificate using the provided filename and password. Make sure you specify a correct CertFileName (PKCS#12 or PEM), optional CertKeyFileName for PEM keys, and CertPassword when required.");
                 }
             }
         }

@@ -291,11 +291,14 @@ namespace Garnet
         public bool? EnableTLS { get; set; }
 
         [CertFileValidation(true, true, false)]
-        [Option("cert-file-name", Required = false, HelpText = "TLS certificate file name (example: testcert.pfx).")]
+        [Option("cert-file-name", Required = false, HelpText = "TLS certificate file name (PKCS#12 .pfx/.p12 or PEM .pem/.crt/.cer; example: testcert.pfx or garnet-cert.crt).")]
         public string CertFileName { get; set; }
 
+        [Option("cert-key-file-name", Required = false, HelpText = "Optional PEM private key file when the key is not embedded in cert-file-name (example: garnet.key). Ignored for PKCS#12.")]
+        public string CertKeyFileName { get; set; }
+
         [HiddenOption]
-        [Option("cert-password", Required = false, HelpText = "TLS certificate password (example: placeholder).")]
+        [Option("cert-password", Required = false, HelpText = "TLS certificate password for PKCS#12 archives or encrypted PEM private keys (example: placeholder).")]
         public string CertPassword { get; set; }
 
         [Option("cert-subject-name", Required = false, HelpText = "TLS certificate subject name.")]
@@ -898,7 +901,8 @@ namespace Garnet
                     EnableCluster.GetValueOrDefault(),
                     ClusterTlsClientTargetHost,
                     ServerCertificateRequired.GetValueOrDefault(),
-                    logger: logger) : null,
+                    logger: logger,
+                    certKeyFileName: CertKeyFileName) : null,
                 LatencyMonitor = LatencyMonitor.GetValueOrDefault(),
                 CommandStatsMonitor = CommandStatsMonitor.GetValueOrDefault(),
                 SlowLogThreshold = SlowLogThreshold,

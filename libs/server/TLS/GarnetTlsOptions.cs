@@ -28,7 +28,7 @@ namespace Garnet.server.TLS
         /// </summary>
         public SslClientAuthenticationOptions TlsClientOptions { get; private set; }
 
-        string CertFileName, CertPassword;
+        string CertFileName, CertPassword, CertKeyFileName;
 
         readonly string CertSubjectName;
         readonly int CertificateRefreshFrequency;
@@ -74,10 +74,12 @@ namespace Garnet.server.TLS
             bool serverCertificateRequired = false,
             SslServerAuthenticationOptions tlsServerOptionsOverride = null,
             SslClientAuthenticationOptions clusterTlsClientOptionsOverride = null,
-            ILogger logger = null)
+            ILogger logger = null,
+            string certKeyFileName = null)
         {
             this.CertFileName = certFileName;
             this.CertPassword = certPassword;
+            this.CertKeyFileName = certKeyFileName;
             this.ClientCertificateRequired = clientCertificateRequired;
             this.CertificateRevocationCheckMode = certificateRevocationCheckMode;
             this.CertSubjectName = certSubjectName;
@@ -119,6 +121,15 @@ namespace Garnet.server.TLS
             return true;
         }
 
+        /// <summary>
+        /// Hot-reload certificate files, including an optional PEM private key path.
+        /// </summary>
+        public bool UpdateCertFile(string certFileName, string certPassword, string certKeyFileName, out string errorMessage)
+        {
+            CertKeyFileName = certKeyFileName;
+            return UpdateCertFile(certFileName, certPassword, out errorMessage);
+        }
+
         SslServerAuthenticationOptions GetSslServerAuthenticationOptions()
         {
             if (CertFileName == null && CertSubjectName == null)
@@ -151,7 +162,7 @@ namespace Garnet.server.TLS
 
             // Create new certificate selector
             if (CertSubjectName == null)
-                serverCertificateSelector = new ServerCertificateSelector(CertFileName, CertPassword, CertificateRefreshFrequency, logger);
+                serverCertificateSelector = new ServerCertificateSelector(CertFileName, CertPassword, CertificateRefreshFrequency, logger, CertKeyFileName);
             else
                 serverCertificateSelector = new ServerCertificateSelector(CertSubjectName, CertificateRefreshFrequency, logger);
 

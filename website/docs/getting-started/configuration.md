@@ -52,7 +52,7 @@ Garnet supports the `redis.conf` file format as a configuration file. Note that 
 | `cluster-enabled`   | `cluster`        | |
 | `cluster-node-timeout`   | `cluster-timeout`        | |
 | `tls-port`   | `tls`        | Value used to indicate if TLS should be used, port number is otherwise ignored
-| `tls-cert-file`   | `cert-file-name`        | Garnet currently supports TLS using a .pfx file and passphrase, while Redis supportes TLS using .crt and .key files. In order to use TLS in Garnet while using redis.conf, convert your certificate to .pfx format (see details in the [security](security.md#using-garnetserver-with-tls) section), then use the .pfx file path as the `tls-cert-file` value. If a passphrase was used when creating the original certificate, specify it in the `tls-key-file-pass` parameter as you would in Redis (or via the `--cert-password` command line argument). When starting the server, use the `--cert-subject-name` command line argument to set the certificate subject name, if applicable. |
+| `tls-cert-file`   | `cert-file-name`        | Garnet supports TLS with PKCS#12 (`.pfx`/`.p12`) or PEM (`.pem`/`.crt`/`.cer`) certificate files. For PEM with a separate private key (as Redis typically uses with `tls-key-file`), also set `--cert-key-file-name` (or map `tls-key-file` to that option). If a passphrase protects the PKCS#12 archive or PEM private key, specify it in `tls-key-file-pass` / `--cert-password`. When starting the server, use the `--cert-subject-name` command line argument to set the certificate subject name, if applicable. |
 | `tls-key-file`   | `cert-password`        | See `tls-cert-file` notes |
 | `tls-auth-clients`   | `client-certificate-required`        | See `tls-cert-file` notes |
 | `latency-tracking`   | `latency-monitor`        | |
@@ -134,7 +134,8 @@ For all available command line settings, run `GarnetServer.exe -h` or `GarnetSer
 | **ClusterTimeout** | ```--cluster-timeout``` | ```int``` | Integer in range:<br/>[0, MaxValue] | Cluster node timeout is the amount of seconds a node must be unreachable. |
 | **ClusterTlsClientTargetHost** | ```--cluster-tls-client-target-host``` | ```string``` |  | Name for the client target host when using TLS connections in cluster mode. |
 | **EnableTLS** | ```--tls``` | ```bool``` |  | Enable TLS. |
-| **CertFileName** | ```--cert-file-name``` | ```string``` |  | TLS certificate file name (example: testcert.pfx). |
+| **CertFileName** | ```--cert-file-name``` | ```string``` |  | TLS certificate file name (PKCS#12 or PEM; example: testcert.pfx or garnet-cert.crt). |
+| **CertKeyFileName** | ```--cert-key-file-name``` | ```string``` |  | Optional PEM private key file when the key is not embedded in CertFileName (example: garnet.key). |
 | **CertPassword** | ```--cert-password``` | ```string``` |  | TLS certificate password (example: placeholder). |
 | **CertSubjectName** | ```--cert-subject-name``` | ```string``` |  | TLS certificate subject name. |
 | **CertificateRefreshFrequency** | ```--cert-refresh-freq``` | ```int``` | Integer in range:<br/>[0, MaxValue] | TLS certificate refresh frequency in seconds (0 to disable). |

@@ -15,20 +15,35 @@ at `<root>/test/testcerts`). You need to start both the server and the client wi
 
 ## Using GarnetServer with TLS
 
-On the server side, you need to start Garnet with TLS enabled. From the command prompt, the parameters to add are `--tls` to enable TLS, details of the certificates such as certificate 
-name (we only accept .pfx files) via `--cert-file-name`, TLS certificate password via `--cert-password`, whether TLS client certificate is required via `--client-certificate-required`, issuer 
+On the server side, you need to start Garnet with TLS enabled. From the command prompt, the parameters to add are `--tls` to enable TLS, details of the certificates such as certificate
+name via `--cert-file-name` (PKCS#12 `.pfx`/`.p12` or PEM `.pem`/`.crt`/`.cer`), optional PEM private key via `--cert-key-file-name` when the key is not embedded in the certificate file,
+TLS certificate password via `--cert-password` (required for password-protected PKCS#12 archives and encrypted PEM keys), whether TLS client certificate is required via `--client-certificate-required`, issuer
 certificate to validate against via `--issuer-certificate-path`, and whether TLS checks certificate revocation via `--certificate-revocation-check-mode`. You can also use a certificate via
 subject name on Windows via `cert-subject-name`. Certificate refresh can be done automatically via the option `--cert-refresh-freq`.
+
+PKCS#12 example:
 
 ```bash
     GarnetServer --tls --cert-file-name testcert.pfx --cert-password placeholder
 ```
 
-If you host your own GarnetServer via NuGet, you can specify the SSL connection options directly by passing in an instance of your implementation of `IGarnetTlsOptions`, we have a 
+PEM example (certificate and private key in separate files, common on Linux):
+
+```bash
+    GarnetServer --tls --cert-file-name garnet-cert.crt --cert-key-file-name garnet.key
+```
+
+PEM example (certificate and private key combined in one file):
+
+```bash
+    GarnetServer --tls --cert-file-name server.pem
+```
+
+If you host your own GarnetServer via NuGet, you can specify the SSL connection options directly by passing in an instance of your implementation of `IGarnetTlsOptions`, we have a
 prototype sample of this as `GarnetTlsOptions.cs`.
 
 :::tip
-In case you have the private and public key files in .key and .crt formats, you can create the .pfx format using openssl:
+If you prefer a single PKCS#12 file, you can still convert PEM key and certificate files with openssl:
 
 ```bash
     openssl pkcs12 -inkey <server-name>.key -in <server-name>.crt -export -out server-cert.pfx
